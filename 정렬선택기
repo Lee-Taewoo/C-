@@ -1,0 +1,104 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+/* ===== 정렬 전략 인터페이스 ===== */
+class SortStrategy {
+public:
+    virtual void sort(vector<int>& data) = 0;
+};
+
+/* ===== Bubble Sort ===== */
+class BubbleSort : public SortStrategy {
+public:
+    void sort(vector<int>& data) override {
+        for (int i = 0; i < data.size(); i++) {
+            for (int j = 0; j < data.size() - i - 1; j++) {
+                if (data[j] > data[j + 1]) {
+                    swap(data[j], data[j + 1]);
+                }
+            }
+        }
+    }
+};
+
+/* ===== Selection Sort ===== */
+class SelectionSort : public SortStrategy {
+public:
+    void sort(vector<int>& data) override {
+        for (int i = 0; i < data.size(); i++) {
+            int minIdx = i;
+            for (int j = i + 1; j < data.size(); j++) {
+                if (data[j] < data[minIdx]) {
+                    minIdx = j;
+                }
+            }
+            swap(data[i], data[minIdx]);
+        }
+    }
+};
+
+/* ===== SortMachine ===== */
+class SortMachine {
+private:
+    vector<int> data;
+    SortStrategy* strategy = nullptr;
+
+public:
+    /* 숫자 삽입 */
+    void insert(int value) {
+        data.push_back(value);
+    }
+
+    /* 정렬 전략 선택 */
+    void selected(SortStrategy* s) {
+        if (strategy)
+            delete strategy;
+        strategy = s;
+    }
+
+    /* RUN 버튼 */
+    void run() {
+        if (strategy)
+            strategy->sort(data);
+    }
+
+    /* 출력 */
+    void show() {
+        for (int v : data)
+            cout << v << " ";
+        cout << endl;
+    }
+};
+
+/* ===== 사용 예시 ===== */
+int main() {
+
+    SortMachine sm;
+
+    sm.insert(5);
+    sm.insert(1);
+    sm.insert(9);
+    sm.insert(2);
+    sm.insert(7);
+
+    sm.show(); // 5 1 9 2 7 
+
+    // Bubble Sort 선택
+    sm.selected(new BubbleSort());
+
+    // RUN
+    sm.run();
+    sm.show(); // 1 2 5 7 9
+
+    // 값 추가
+    sm.insert(3);
+    sm.show(); // 1 2 5 7 9 3
+
+    // Selection Sort 선택
+    sm.selected(new SelectionSort());
+    sm.run();
+    sm.show(); // 1 2 3 5 7 9
+
+    return 0;
+}
